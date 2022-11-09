@@ -146,22 +146,6 @@ class WindDrivenModel():
             if self.is_off(A):
                 proba += 1
         return proba/N_traj
-
-        # proba = 0
-        # for _ in range(N_traj):
-        #     A = np.copy(A0)
-        #     stop = False
-        #     while not stop:
-        #         t = self.trajectory(1, 100, init_state=A)[0]
-        #         ind_on, ind_off = np.nonzero(self.is_on(t)==1)[0], np.nonzero(self.is_off(t)==1)[0]
-        #         if len(ind_off)>0:
-        #             stop = True
-        #             if len(ind_on)==0 or ind_on[0]>ind_off[0]:
-        #                 proba += 1
-        #         elif len(ind_on)>0:
-        #             stop = True
-        #         A = t[-1]
-        # return proba/N_traj
     
     def check_traj_fine(self, traj):
         """
@@ -199,62 +183,41 @@ class WindDrivenModel():
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-    # from time import time
     
     sigma = 0.45
     beta = 0.198
     m = WindDrivenModel(1, sigma=sigma, beta=beta)
     print(m.up, m.down)
     
-    # interval = np.linspace(0,np.pi,1000)
-    # modes_x = np.array([[np.exp(-2*interval)*np.sin(interval)] for k in range(1,5)])
-    # modes_y = np.array([np.sin(k*interval) for k in range(1,5)])[...,np.newaxis]
-    # modes = modes_y @ modes_x
-    # stream_up, stream_down = np.sum(m.up[:,np.newaxis,np.newaxis]*modes,axis=0), np.sum(m.down[:,np.newaxis,np.newaxis]*modes,axis=0)
+    # Plot of the jet-up and jet-down states
+    interval = np.linspace(0,np.pi,1000)
+    modes_x = np.array([[np.exp(-2*interval)*np.sin(interval)] for k in range(1,5)])
+    modes_y = np.array([np.sin(k*interval) for k in range(1,5)])[...,np.newaxis]
+    modes = modes_y @ modes_x
+    stream_up, stream_down = np.sum(m.up[:,np.newaxis,np.newaxis]*modes,axis=0), np.sum(m.down[:,np.newaxis,np.newaxis]*modes,axis=0)
     
-    # im, (ax1, ax2) = plt.subplots(1,2, figsize=(13,5), sharey=True)
-    # ax1.contourf(interval, interval, stream_up, levels=30, cmap='viridis')
-    # ax1.set_title("Jet-up state", fontsize=15)
-    # ax1.set_ylabel("Y", fontsize=13)
-    # ax1.set_yticklabels([0,0.5,1.0,1.5,2.0,2.5,3.0], fontsize=13)
-    # ax1.set_xlabel("X", fontsize=13)
-    # ax1.set_xticklabels([0,0.5,1.0,1.5,2.0,2.5,3.0], fontsize=13)
-    # f = ax2.contourf(interval, interval, stream_down, levels=30,cmap='viridis')
-    # ax2.set_title("Jet-down state", fontsize=15)
-    # ax2.set_xlabel("X", fontsize=13)
-    # ax2.set_xticklabels([0,0.5,1.0,1.5,2.0,2.5,3.0], fontsize=13)
-    # im.subplots_adjust(bottom=0.1, top=0.9, left=0.1, wspace=0.03)
-    # cbar = im.colorbar(f, ax=[ax1,ax2])
-    # cbar.ax.tick_params(labelsize=13)
-    # im.savefig("/Users/Valerian/Desktop/Article_committor/DoubleGyre_states", dpi=400, transparent=True)
-    # plt.show()
+    im, (ax1, ax2) = plt.subplots(1,2, figsize=(13,5), sharey=True)
+    ax1.contourf(interval, interval, stream_up, levels=30, cmap='viridis')
+    ax1.set_title("Jet-up state", fontsize=15)
+    ax1.set_ylabel("Y", fontsize=13)
+    ax1.set_yticklabels([0,0.5,1.0,1.5,2.0,2.5,3.0], fontsize=13)
+    ax1.set_xlabel("X", fontsize=13)
+    ax1.set_xticklabels([0,0.5,1.0,1.5,2.0,2.5,3.0], fontsize=13)
+    f = ax2.contourf(interval, interval, stream_down, levels=30,cmap='viridis')
+    ax2.set_title("Jet-down state", fontsize=15)
+    ax2.set_xlabel("X", fontsize=13)
+    ax2.set_xticklabels([0,0.5,1.0,1.5,2.0,2.5,3.0], fontsize=13)
+    im.subplots_adjust(bottom=0.1, top=0.9, left=0.1, wspace=0.03)
+    cbar = im.colorbar(f, ax=[ax1,ax2])
+    cbar.ax.tick_params(labelsize=13)
+    im.savefig("/Users/Valerian/Desktop/Article_committor/DoubleGyre_states", dpi=400, transparent=True)
+    plt.show()
     
+    # Plot of the randomly sampled phase space snapshot
     L = 100
     N = 100000
-    # ic = np.array([-0.5, 0.75, -0.153, 0])
-    # t0 = time()
-    # traj2 = m.trajectory(1000, L, init_state=None)
-    # t1 = time()
-    # print(t1-t0)
-    # nb_on, nb_off = np.count_nonzero(m.is_on(traj2)), np.count_nonzero(m.is_off(traj2))
-    # print(nb_on, nb_off, nb_on+nb_off)
-    # plt.plot(traj2[:,0]+traj2[:,2],traj2[:,1])
-    # plt.scatter(m.up[0]+m.up[2], m.up[1], c="g", s=50)
-    # plt.scatter(m.down[0]+m.down[2], m.down[1], c="r", s=50)
-    # plt.show()
-    # plt.plot(traj[:,0], traj[:,1])
-    # plt.show()
-    # plt.plot(traj[:,0], traj[:,2])
-    # plt.show()
-   
-#%%
-    
     rng = np.random.default_rng()
     init = np.zeros((N,4))
-
-    # for k in range(4):
-    #     init[:,k] = rng.uniform(m.up[k]-1, m.up[k]+1, N)
-    # ic_up, ic_down = [], []
     
     a3 = np.linspace(m.up[2]-1, m.up[2]+1, num=10)
     for k in range(4):
@@ -275,11 +238,7 @@ if __name__ == "__main__":
         else:
             ic_up[-1].append(i)
 
-#%%
-
     vM, vm = m.up+1, m.up-1
-    
-    # x, y = init[ic_up], init[ic_down]
     
     for i in range(10):
         x, y = init[ic_up[i]], init[ic_down[i]]
@@ -291,70 +250,5 @@ if __name__ == "__main__":
         plt.xlabel(r"$A_1$", fontsize=13)
         plt.ylabel(r"$A_2$", fontsize=13)
         plt.title(r"$A_3=$"+str(np.round(a3[i],decimals=3)), fontsize=13)
-        # plt.savefig("/Users/Valerian/Desktop/Article_committor/phase_space_wd", dpi=400)
         plt.show()   
-    
-    # plt.scatter(x[:,0]+x[:,2], x[:,1], s=5, c="g")
-    # plt.scatter(y[:,0]+y[:,2], y[:,1], s=5, c="r")
-    # plt.scatter(m.up[0]+m.up[2], m.up[1], s=50, c="lime")
-    # plt.scatter(m.down[0]+m.down[2], m.down[1], s=50, c="gold")
-    # plt.xlabel(r"$A_1+A_3$", fontsize=13)
-    # plt.ylabel(r"$A_2$", fontsize=13)
-    # plt.show()
-    
-    # plt.scatter(x[:,0]+x[:,2], x[:,3], s=5, c="g")
-    # plt.scatter(y[:,0]+y[:,2], y[:,3], s=5, c="r")
-    # plt.scatter(m.up[0]+m.up[2], m.up[3], s=50, c="lime")
-    # plt.scatter(m.down[0]+m.down[2], m.down[3], s=50, c="gold")
-    # plt.xlabel(r"$A_1+A_3$", fontsize=13)
-    # plt.ylabel(r"$A_4$", fontsize=13)
-    # plt.show()
-    
-    # plt.scatter(x[:,1], x[:,3], s=5, c="g")
-    # plt.scatter(y[:,1], y[:,3], s=5, c="r")
-    # plt.scatter(m.up[1], m.up[3], s=50, c="lime")
-    # plt.scatter(m.down[1], m.down[3], s=50, c="gold")
-    # plt.xlabel(r"$A_2$", fontsize=13)
-    # plt.ylabel(r"$A_4$", fontsize=13)
-    # plt.show()
-    
-    # plt.scatter(x[:,0], x[:,2], s=5, c=x[:,1], cmap="Greens", vmin=vm[1], vmax=vM[1])
-    # plt.scatter(y[:,0], y[:,2], s=5, c=y[:,1], cmap="Reds", vmin=vm[1], vmax=vM[1])
-    # plt.scatter(m.up[0], m.up[2], s=50, c="lime")
-    # plt.scatter(m.down[0], m.down[2], s=50, c="gold")
-    # plt.xlabel(r"$A_1$", fontsize=13)
-    # plt.ylabel(r"$A_3$", fontsize=13)
-    # plt.show()
-    
-    # plt.scatter(x[:,0], x[:,1], s=5, c=x[:,2], cmap="Greens", vmin=vm[2], vmax=vM[2])
-    # plt.scatter(y[:,0], y[:,1], s=5, c=y[:,2], cmap="Reds", vmin=vm[2], vmax=vM[2])
-    # plt.scatter(m.up[0], m.up[1], s=50, c="lime")
-    # plt.scatter(m.down[0], m.down[1], s=50, c="gold")
-    # plt.xlabel(r"$A_1$", fontsize=13)
-    # plt.ylabel(r"$A_2$", fontsize=13)
-    # plt.show()
-    
-    # plt.scatter(x[:,0], x[:,3], s=5, c="g")
-    # plt.scatter(y[:,0], y[:,3], s=5, c="r")
-    # plt.scatter(m.up[0], m.up[3], s=50, c="lime")
-    # plt.scatter(m.down[0], m.down[3], s=50, c="gold")
-    # plt.xlabel(r"$A_1$", fontsize=13)
-    # plt.ylabel(r"$A_4$", fontsize=13)
-    # plt.show()
-    
-    # plt.scatter(x[:,1], x[:,2], s=5, c=x[:,0], cmap="Greens", vmin=vm[0], vmax=vM[0])
-    # plt.scatter(y[:,1], y[:,2], s=5, c=y[:,0], cmap="Reds", vmin=vm[0], vmax=vM[0])
-    # plt.scatter(m.up[1], m.up[2], s=50, c="lime")
-    # plt.scatter(m.down[1], m.down[2], s=50, c="gold")
-    # plt.xlabel(r"$A_2$", fontsize=13)
-    # plt.ylabel(r"$A_3$", fontsize=13)
-    # plt.show()
-    
-    # plt.scatter(x[:,2], x[:,3], s=5, c="g")
-    # plt.scatter(y[:,2], y[:,3], s=5, c="r")
-    # plt.scatter(m.up[2], m.up[3], s=50, c="lime")
-    # plt.scatter(m.down[2], m.down[3], s=50, c="gold")
-    # plt.xlabel(r"$A_3$", fontsize=13)
-    # plt.ylabel(r"$A_4$", fontsize=13)
-    # plt.show()
 

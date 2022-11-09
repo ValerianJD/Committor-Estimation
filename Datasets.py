@@ -12,7 +12,6 @@ from tqdm import tqdm
 import multiprocessing as mp
 import matplotlib.pyplot as plt
 
-
 class MonteCarlo():
     """
     Class handling the Monte-Carlo estimation of the committor function

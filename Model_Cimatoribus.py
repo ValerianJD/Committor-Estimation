@@ -400,21 +400,17 @@ class CimatoribusModel():
 
 
 if __name__ == "__main__":
+    # Example plot of the reduced phase space of the model
     import matplotlib.pyplot as plt
-    from time import time
     
     C = CimatoribusModel()
     idx, noise = 60, 0.4
-    
-    t0 = time()
+
     t = C.trajectory(1, 500, idx, noise)[0]
     t = C.re_dim(t)
-    t1 = time()
-    print(t1-t0)
     
-    on, off = C.comp_steady(60)
+    on, off = C.comp_steady(idx)
     on, off = C.re_dim(on), C.re_dim(off)
-    
     on_states, off_states = C.is_on(C.non_dim(t)), C.is_off(C.non_dim(t))
 
     x_m, x_M, y_m, y_M = -6, 1.5, 700, 1800
@@ -438,113 +434,3 @@ if __name__ == "__main__":
     plt.ylim(y_m, y_M)
     plt.title("Ea="+str(idx)+", noise="+str(noise), fontsize=13)
     plt.show()
-    
-#%%
-
-    import h5py
-    f = h5py.File("/Users/Valerian/Desktop/Traj_Julia.jld", "r")
-    traj_julia = f["traj"]
-    print(traj_julia.shape)
-    traj_julia = C.re_dim(traj_julia)
-    print(t.shape, traj_julia.shape)
-    print(np.count_nonzero(t!=traj_julia[:10],axis=2))
-    
-    for i in range(10):
-        plt.plot(t[i,:,2]-t[i,:,1], t[i,:,4])
-        plt.plot(traj_julia[i,:,2]-traj_julia[i,:,1], traj_julia[i,:,4], alpha=0.5)
-        plt.show()
-    
-### DEPRECATED
-
-# def system(self, state, jac=False):
-#     """
-#     Computes the differential equations at each timestep.
-#     State is the current state and this function returns what is needed to compute the next.
-
-#     """
-#     D_dim, S_dim, t_dim = self.params["D_dim"], self.params["S_dim"], self.params["t_dim"]
-#     Vn, Vs = self.params["Vn"], self.params["Vs"]
-#     St, S_ts, Sn, Ss, D, Sd = state
-#     Lxa, Ly, A = self.params["Lx_a"], self.params["Ly"], self.params["A"]
-    
-#     Vt = A*D_dim
-#     V_ts = (Lxa*Ly/2)*D_dim
-#     Vr = (A + Lxa*Ly/2)
-    
-#     heaviside = lambda x: 0.5*(np.tanh(x/self.epsilon)+1)
-    
-#     qEk = self.params["tau"]*self.params["Lx_s"]/(self.params["rho_0"]*self.params["fs"])
-#     qe = self.params["Agm"]*Lxa*D*D_dim/Ly
-#     qs = qEk-qe
-#     qu = self.params["kappa"]*A/(D*D_dim)
-#     qn1 = self.params["eta"]*self.params["alpha"]*(self.params["T_ts"]-self.params["Tn"])*(D*D_dim)**2
-#     qn2 = self.params["eta"]*self.params["beta"]*(D*D_dim)**2
-#     qn = qn1 + qn2*(Sn-S_ts)*S_dim
-    
-#     deriv_D = (qu + qs - heaviside(qn)*qn) * t_dim/(Vr*D_dim)
-    
-#     if not jac:
-#         f = np.zeros(5)
-#         f[0] = qs*(heaviside(qs)*S_ts + heaviside(-qs)*St) + qu*Sd \
-#             - heaviside(qn)*qn*St + self.params["r_s"]*(S_ts-St) + self.params["r_n"]*(Sn-St) \
-#             + 2*self.params["Es"]
-#         f[0] *= t_dim/Vt
-#         f[0] -= St*deriv_D
-#         f[0] /= D
-        
-#         f[1] = qEk*Ss - qe*S_ts - qs*(heaviside(qs)*S_ts + heaviside(-qs)*St) \
-#             + self.params["r_s"]*(St - S_ts)
-#         f[1] *= t_dim/V_ts
-#         f[1] -= S_ts*deriv_D
-#         f[1] /= D
-        
-#         f[2] = (qn*heaviside(qn) + self.params["r_n"])*(St - Sn) - (self.params["Es"]+self.Ea*1e6)
-#         f[2] *= t_dim/Vn
-        
-#         f[3] = qs*(heaviside(qs)*Sd + heaviside(-qs)*Ss) + qe*S_ts - qEk*Ss - (self.params["Es"]-self.Ea*1e6)
-#         f[3] *= t_dim/Vs
-        
-#         f[4] = deriv_D
-        
-#         return f
-    
-#     jac = np.zeros((5,6))
-    
-#     jac[4,1] = qn2*S_dim*heaviside(qn)
-#     jac[4,2] = - qn2*S_dim*heaviside(qn)
-#     jac[4,4] = -(qu + qe + 2*qn*heaviside(qn)) / D
-#     jac[4] *= t_dim/(Vr*D_dim)
-       
-#     jac[0,0] = (qs*heaviside(-qs) - qn*heaviside(qn) - self.params["r_s"] - self.params["r_n"]) * t_dim/Vt \
-#         - deriv_D
-#     jac[0,1] = (qs*heaviside(qs) + qn2*S_dim*heaviside(qn)*St + self.params["r_s"]) * t_dim/Vt - St*jac[4,1]
-#     jac[0,2] = (-qn2*S_dim*heaviside(qn)*St + self.params["r_n"]) * t_dim/Vt - St*jac[4,2]
-#     jac[0,4] = ( (-qe*(heaviside(qs)*S_ts + heaviside(-qs)*St)/D - qu*Sd/D - 2*qn*heaviside(qn)*St/D) * t_dim/Vt - St*jac[4,4]) \
-#         - ((qs*(heaviside(qs)*S_ts + heaviside(-qs)*St) + qu*Sd \
-#         - heaviside(qn)*qn*St + self.params["r_s"]*(S_ts-St) + self.params["r_n"]*(Sn-St) \
-#         + 2*self.params["Es"])*t_dim/Vt - St*deriv_D) / D
-#     jac[0,5] = qu*t_dim/Vt
-#     jac[0] /= D
-    
-#     jac[1,0] = (self.params["r_s"] - qs*heaviside(-qs)) * t_dim/V_ts
-#     jac[1,1] = -(qe + qs*heaviside(qs) + self.params["r_s"]) * t_dim/V_ts - deriv_D - S_ts*jac[4,1]
-#     jac[1,2] = -S_ts*jac[4,2]
-#     jac[1,3] = qEk*t_dim/V_ts
-#     jac[1,4] = (-qe*S_ts/D + qe*(heaviside(qs)*S_ts+heaviside(-qs)*St)/D) * t_dim/V_ts \
-#         - S_ts*jac[4,4] - ((qEk*Ss - qe*S_ts - qs*(heaviside(qs)*S_ts + heaviside(-qs)*St) \
-#             + self.params["r_s"]*(St - S_ts)) * t_dim/V_ts - S_ts*deriv_D) / D
-#     jac[1] /= D
-    
-#     jac[2,0] = qn*heaviside(qn) + self.params["r_n"]
-#     jac[2,1] = -qn2*S_dim*heaviside(qn)*(St-Sn)
-#     jac[2,2] = -qn*heaviside(qn) - self.params["r_n"] + qn2*S_dim*heaviside(qn)*(St-Sn)
-#     jac[2,4] = 2*qn*heaviside(qn)*(St-Sn)/D
-#     jac[2] *= t_dim/Vn
-    
-#     jac[3,1] = qe
-#     jac[3,3] = qs*heaviside(-qs) - qEk
-#     jac[3,4] = (S_ts - heaviside(qs)*Sd - heaviside(-qs)*Ss) * qe/D
-#     jac[3,5] = qs*heaviside(qs)
-#     jac[3] *= t_dim/Vs
-    
-#     return jac
