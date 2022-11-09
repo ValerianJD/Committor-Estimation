@@ -233,8 +233,8 @@ for i in range(len(res)):
 
     axs[2].plot(Nt[start:end], m_train[start:end], color=colors[i], label=labels[i])
     axs[2].fill_between(Nt[start:end], e_train[0, start:end], e_train[1, start:end], color=colors[i], alpha=alpha)
-    axs[2].plot(Nt[start:end], m_test[start:end], color=colors[i], ls="--")
-    axs[2].fill_between(Nt[start:end], e_test[0, start:end], e_test[1, start:end], color=colors[i], alpha=alpha)
+    axs[3].plot(Nt[start:end], m_test[start:end], color=colors[i])
+    axs[3].fill_between(Nt[start:end], e_test[0, start:end], e_test[1, start:end], color=colors[i], alpha=alpha)
 
 for i, a in enumerate(axs):
     a.set_xscale('log')
@@ -247,7 +247,7 @@ for i, a in enumerate(axs):
 axs[1].legend(loc="lower right")
 axs[2].legend(loc="upper left")
 axs[2].set_yscale('log')
-axs[2].set_yscale('log')
+axs[3].set_yscale('log')
 
 if save:
     logscore.savefig(dirsave+"Logarithm_"+savename, dpi=500)
