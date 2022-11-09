@@ -6,8 +6,6 @@ Created on Tue Jul 12 18:20:58 2022
 @author: valerian
 """
 
-print("salut")
-
 import numpy as np
 from tqdm import tqdm
 from time import time
