@@ -6,6 +6,8 @@ Created on Thu Mar 3 15:00:52 2022
 @author: valerian
 """
 
+#%%
+
 from time import time
 import numpy as np
 from tqdm import tqdm
@@ -16,6 +18,8 @@ from torch import nn
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import TensorDataset, DataLoader
 from scipy.special import softmax
+
+#%%
 
 class Dense(nn.Module):
     def __init__(self, in_neurons, out_feat):
@@ -253,3 +257,4 @@ class NeuralNetworks():
             self.all_times_test[i] = test_time
                 
         return comm
+# %%

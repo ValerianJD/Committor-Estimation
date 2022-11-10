@@ -6,6 +6,8 @@ Created on Thu Sep 22 10:58:02 2022
 @author: valerian
 """
 
+#%%
+
 import numpy as np
 from time import time
 from scipy.special import binom
@@ -46,19 +48,13 @@ class NewGen_ResNet():
         
         """
         d, time = traj.shape
-        if d>time:
-            traj = traj.T
-            d, time = time, d
-
-        # Only compute dlin, dtot and combi in train mode
-        if target is not None:
-            self.dlin = d*self.k  #Size of the lineart part of the feature vector
-            # dtot is the total size of the feature vector
-            # the binomial factor describes the size of the nonlinear features vector
-            # 1 corresponds to the additional constant
-            self.dtot = int(binom(self.dlin+self.p-1, self.p)) + self.dlin + 1
-            # List of the indices to multiply in order to create the nonlinear features vector 
-            self.combi = np.array(list(combinations_with_replacement(np.arange(self.dlin), self.p)))
+        self.dlin = d*self.k  #Size of the lineart part of the feature vector
+        # dtot is the total size of the feature vector
+        # the binomial factor describes the size of the nonlinear features vector
+        # 1 corresponds to the additional constant
+        self.dtot = int(binom(self.dlin+self.p-1, self.p)) + self.dlin + 1
+        # List of the indices to multiply in order to create the nonlinear features vector 
+        self.combi = np.array(list(combinations_with_replacement(np.arange(self.dlin), self.p)))
         
         # The linear features vector
         x = np.zeros((self.dlin, time))
@@ -76,40 +72,48 @@ class NewGen_ResNet():
             return self.W_out @ out
         # Compute the output layer
         self.W_out = target @ out.T @ np.linalg.pinv(out @ out.T + self.alpha*np.identity(self.dtot))
-        
-    def process_infer(self, train, target, test):
+    
+    def training(self, train, target, path):
         """
-        The total inference process, encompassing training and testing phase
+        Training for the inference task.
 
         Parameters
         ----------
         train : train trajectory
 
         target : target timeseries to predict. must be of shape (dimension, timesteps)
-            
-        test : test trajectories
+
+        path : where to save the training of the Reservoir Network
 
         Returns
         -------
-        pred : The estimated variables along the test trajectories
+        Saves the trained feature vector at indicated path. 
 
         """
-        self.times_test = np.zeros(test.shape[0])
-        pred = np.zeros((test.shape[:-1]))
-        
-        # Training phase
-        t0 = time()
         self.infer(train, target=target)
-        t1 = time()
-        self.time_train = t1-t0
-        
-        # Testing phase
-        for i in range(test.shape[0]):   
-            t0 = time()
-            pred[i] = self.infer(test[i])
-            t1 = time()
-            self.times_test[i] = t1-t0
-            
-        return pred
+        self.path = path
+        np.save(self.path, self.W_out)
 
+    def testing(self, traj, path=None):
+        """
+        Testing for the inference task.
+
+        Parameters
+        ----------
+        traj : timeseries on which to compute the committor. Must be of shape (nb_trajectories, dimension, timesteps)
+
+        path : if None, we re-use the same path as in training
+
+        Returns
+        -------
+        The estimated committor on every trajectory  
+
+        """
+        path = self.path if path==None else path
+        self.W_out = np.load(path)
+        committor = np.zeros((traj.shape[0],traj.shape[2]))
+        for i in range(traj.shape[0]):
+            committor[i] = self.infer(traj[i])
+        return committor
     
+# %%

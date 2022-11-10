@@ -85,3 +85,5 @@ def diff_score(est, true):
     """
     max_dist = np.linalg.norm(np.where(true>0.5,true,1-true),axis=-1)
     return 1 - np.linalg.norm(est-true,axis=-1)/max_dist
+
+# %%
