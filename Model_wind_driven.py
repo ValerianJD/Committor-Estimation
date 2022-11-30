@@ -6,6 +6,7 @@ Created on Thu Apr 14 18:42:37 2022
 @author: valerian
 """
 
+import os
 import numpy as np
 
 class WindDrivenModel():
@@ -25,7 +26,7 @@ class WindDrivenModel():
         self.l = [0.0128616, 0.0211107, 0.0318615, 0.0427787]
         
         #Loads the steady states, pre-computed for a number of parameters
-        self.steady = np.load("/Users/valerian/Desktop/Results/Wind_driven_steady_states.npy", allow_pickle=True).item()
+        self.steady = np.load(os.getcwd()+"/Wind_driven_steady_states.npy", allow_pickle=True).item()
 
         self.dt = dt
         self.comp_on_off(sigma, beta)
@@ -210,7 +211,6 @@ if __name__ == "__main__":
     im.subplots_adjust(bottom=0.1, top=0.9, left=0.1, wspace=0.03)
     cbar = im.colorbar(f, ax=[ax1,ax2])
     cbar.ax.tick_params(labelsize=13)
-    im.savefig("/Users/Valerian/Desktop/Article_committor/DoubleGyre_states", dpi=400, transparent=True)
     plt.show()
     
     # Plot of the randomly sampled phase space snapshot
