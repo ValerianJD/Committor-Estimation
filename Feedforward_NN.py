@@ -167,13 +167,11 @@ class NeuralNetworks():
         t1 - t0 is the total training time
 
         """
-        full_loss = np.zeros(self.nb_epochs)
         min_loss = np.inf
         train_t0 = time()
         for k in range(self.nb_epochs):
             self.train(t) # Perform training
             val_loss = self.test(v) #Compute the loss function on the validation set and store it
-            full_loss[k] = val_loss
             # Check whether the new validation loss is lower than the former best
             # If yes, save the current state of the NN, it is the best until now
             if k == 0 or val_loss<min_loss:
@@ -181,7 +179,7 @@ class NeuralNetworks():
                 torch.save(self.network.state_dict(), self.dir_ml+self.cpn+".pt")
             self.scheduler.step(val_loss) # Check whether that new loss triggers the next step of the scheduler (see function process)
         train_t1 = time()
-        return full_loss, train_t1-train_t0
+        return train_t1-train_t0
 
     def testing(self):
         """
@@ -233,8 +231,7 @@ class NeuralNetworks():
         
         self.k_split(train_traj, train_labels)  # Split the total train set in nb_runs sets to perform k-fold learning
         self.all_test = torch.Tensor(test_traj.copy())  # Build the tensor containing test trajectories
-        
-        self.loss = np.zeros((self.nb_runs, self.nb_epochs))
+    
         comm = np.zeros((self.nb_runs,self.all_test.shape[0],self.all_test.shape[1]))
         
         for i in tqdm(range(self.nb_runs)):
@@ -247,9 +244,6 @@ class NeuralNetworks():
             self.scheduler = ReduceLROnPlateau(self.optimizer, patience=5, factor=0.1)
             
             # Estimation of the committor on every test trajectory
-            self.loss[i], train_time = self.learning(self.train_data[i], self.valid_data[i])
-            comm[i], test_time = self.testing()
-            self.all_times_train[i] = train_time
-            self.all_times_test[i] = test_time
-                
+            self.all_times_train[i] = self.learning(self.train_data[i], self.valid_data[i])
+            comm[i], self.all_times_test[i] = self.testing()
         return comm
