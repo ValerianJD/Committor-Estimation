@@ -319,7 +319,7 @@ if __name__ == "__main__":
         p = {"sigma":sigma, "beta":beta}
     
     Nt = 500
-    data = DataHandler(m, p, Nt, 1, "/Users/valerian/Desktop/Data/")
+    data = DataHandler(m, p, Nt, 1, dirdata)
     if train:
         data.make_train_set(5000, None, 1000)
     if test:
