@@ -156,7 +156,6 @@ class AnaloguesMethod():
 
         #Define the new transition matrix with the global states A and B 
         G_tilde = np.zeros((nb_others+2, nb_others+2))
-        print(G_tilde.shape)
         G_tilde[:nb_others,:nb_others] = transition[:,all_others].copy()
         G_tilde[:nb_others,-2] = np.sum(transition[:,idx_states_A],axis=1)
         G_tilde[:nb_others,-1] = np.sum(transition[:,idx_states_B],axis=1)
