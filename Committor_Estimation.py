@@ -49,12 +49,13 @@ assert method in ["AMC", "KNN", "Feedforward NN", "DGA", "Reservoir"]
 
 #Whether to save the results or not
 save = False
-dirsave = "/Users/valerian/Desktop/Results/"+models[to_use]['model'].name
+dir_data #Directory containing the data
+base_dir #Directory containing the results
+dirsave = base_dir+models[to_use]['model'].name
 
 # We load the data corresponding to the chosen model
 par = models[to_use]['params']
-handler =  Datasets.DataHandler(models[to_use]['model'], par, np.max(Nt), nb_dataset,
-                                "/Users/valerian/Desktop/Data/")
+handler =  Datasets.DataHandler(models[to_use]['model'], par, np.max(Nt), nb_dataset, dir_data)
 # Load the true committor of the largest dataset to define the climatology of the logarithm score
 ref_comm = handler.open_data("Committor")
 score = LogaScore(ref_comm)
@@ -170,7 +171,7 @@ elif method == "Feedforward NN":
     #Initialize method
     nb_epochs, nb_runs = 30, 20
     # The directory where to save the best state of the NN after each epoch
-    dir_ml = "/Users/valerian/Desktop/Data/save_best_state_ml/"
+    dir_ml = dir_data + "/save_best_state_ml/"
     nn = Machine_Learning.NeuralNetworks(nb_epochs, nb_runs, dir_ml, LR=LR)
 
     test = models[to_use]['model'].select_var(test, var)
