@@ -17,11 +17,11 @@ class CimatoribusModel():
     
     """
     
-    def __init__(self, dt=1e-3, folder="/Users/valerian/Desktop/Results/", seed=None):
+    def __init__(self, dt=1e-3, folder=None, seed=None):
         
         self.name = "Cimatoribus"
         self.capped = True    # Trajectories have a fixed length to avoid the S-transition zone
-        
+        folder = os.getcwd()+"/" if folder==None else folder
         self.rng = np.random.default_rng(seed)
         self.name_files = folder+"equilibria/"  #Directory where to find info about the steady states
         self.all_eq_files = np.sort(os.listdir(self.name_files))[1:] #Load steady states files
